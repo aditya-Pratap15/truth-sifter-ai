@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,6 +32,16 @@ const Index = () => {
     }
   ];
 
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Navigation */}
@@ -43,9 +52,9 @@ const Index = () => {
             <span className="text-2xl font-bold text-gray-900">FakeBuster AI</span>
           </div>
           <div className="flex items-center space-x-4">
-            <Button variant="ghost">Features</Button>
-            <Button variant="ghost">Demo</Button>
-            <Button variant="ghost">Dashboard</Button>
+            <Button variant="ghost" onClick={() => scrollToSection('features')}>Features</Button>
+            <Button variant="ghost" onClick={() => scrollToSection('demo')}>Demo</Button>
+            <Button variant="ghost" onClick={() => scrollToSection('dashboard')}>Dashboard</Button>
             <Button>Get Extension</Button>
           </div>
         </div>
@@ -55,7 +64,7 @@ const Index = () => {
       <Hero />
 
       {/* Features Section */}
-      <section className="py-20 px-4">
+      <section id="features" className="py-20 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -75,7 +84,7 @@ const Index = () => {
       </section>
 
       {/* Demo Section */}
-      <section className="py-20 px-4 bg-gray-50">
+      <section id="demo" className="py-20 px-4 bg-gray-50">
         <div className="container mx-auto max-w-4xl">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -91,7 +100,7 @@ const Index = () => {
       </section>
 
       {/* Dashboard Preview */}
-      <section className="py-20 px-4">
+      <section id="dashboard" className="py-20 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">

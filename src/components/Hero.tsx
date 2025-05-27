@@ -4,6 +4,16 @@ import { Badge } from "@/components/ui/badge";
 import { Shield, Zap, CheckCircle } from "lucide-react";
 
 export const Hero = () => {
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
   return (
     <section className="py-20 px-4">
       <div className="container mx-auto max-w-6xl">
@@ -28,7 +38,7 @@ export const Hero = () => {
                 <Shield className="mr-2 h-5 w-5" />
                 Install Extension
               </Button>
-              <Button size="lg" variant="outline" className="text-lg">
+              <Button size="lg" variant="outline" className="text-lg" onClick={() => scrollToSection('demo')}>
                 <Zap className="mr-2 h-5 w-5" />
                 Try Demo
               </Button>

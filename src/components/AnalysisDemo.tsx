@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,6 +20,110 @@ export const AnalysisDemo = () => {
     "The stock market experienced a 2% increase today following positive economic indicators and employment data."
   ];
 
+  // Real text analysis function
+  const analyzeText = (text: string) => {
+    const words = text.toLowerCase().split(/\s+/);
+    const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    
+    let credibilityScore = 85; // Start with high credibility
+    const flags = [];
+    let category = "General News";
+    let sources = 3;
+
+    // Check for sensational language
+    const sensationalWords = ['breaking', 'urgent', 'shocking', 'unbelievable', 'explosive', 'bombshell'];
+    const hasSensational = sensationalWords.some(word => text.toLowerCase().includes(word));
+    if (hasSensational) {
+      credibilityScore -= 25;
+      flags.push("Sensational language detected");
+    }
+
+    // Check for excessive punctuation
+    const exclamationCount = (text.match(/!/g) || []).length;
+    if (exclamationCount > 2) {
+      credibilityScore -= 15;
+      flags.push("Excessive use of exclamation marks");
+    }
+
+    // Check for extraordinary claims
+    const extraordinaryClaims = ['alien', 'ufo', 'miracle cure', 'conspiracy', 'secret government', 'cover-up'];
+    const hasExtraordinary = extraordinaryClaims.some(claim => text.toLowerCase().includes(claim));
+    if (hasExtraordinary) {
+      credibilityScore -= 40;
+      flags.push("Extraordinary claims without evidence");
+      category = "Extraordinary Claims";
+      sources = 1;
+    }
+
+    // Check for emotional manipulation
+    const emotionalWords = ['fear', 'panic', 'terrified', 'outraged', 'devastated', 'furious'];
+    const hasEmotional = emotionalWords.some(word => text.toLowerCase().includes(word));
+    if (hasEmotional) {
+      credibilityScore -= 20;
+      flags.push("Emotional manipulation detected");
+    }
+
+    // Check for vague language
+    const vagueWords = ['some people say', 'many believe', 'sources claim', 'reportedly', 'allegedly'];
+    const hasVague = vagueWords.some(phrase => text.toLowerCase().includes(phrase));
+    if (hasVague) {
+      credibilityScore -= 15;
+      flags.push("Vague or unverified sources");
+    }
+
+    // Check for scientific/medical claims
+    const scientificWords = ['scientists', 'study', 'research', 'data', 'evidence', 'peer-reviewed'];
+    const hasScientific = scientificWords.some(word => text.toLowerCase().includes(word));
+    if (hasScientific) {
+      credibilityScore += 10;
+      category = "Scientific/Medical";
+      sources = 5;
+    }
+
+    // Check for political content
+    const politicalWords = ['election', 'vote', 'president', 'government', 'policy', 'congress'];
+    const hasPolitical = politicalWords.some(word => text.toLowerCase().includes(word));
+    if (hasPolitical) {
+      category = "Political";
+      sources = 4;
+    }
+
+    // Check for financial content
+    const financialWords = ['stock', 'market', 'investment', 'economy', 'economic', 'financial'];
+    const hasFinancial = financialWords.some(word => text.toLowerCase().includes(word));
+    if (hasFinancial) {
+      category = "Financial";
+      sources = 6;
+    }
+
+    // Length and structure analysis
+    if (text.length < 50) {
+      credibilityScore -= 10;
+      flags.push("Content too brief for proper analysis");
+    }
+
+    if (sentences.length === 1 && text.length > 100) {
+      credibilityScore -= 10;
+      flags.push("Poor sentence structure");
+    }
+
+    // Ensure score stays within bounds
+    credibilityScore = Math.max(10, Math.min(95, credibilityScore));
+
+    return {
+      credibilityScore,
+      sources,
+      flags,
+      category,
+      analysisType: "text",
+      textAnalysis: {
+        wordCount: words.length,
+        sentenceCount: sentences.length,
+        readabilityScore: Math.floor(Math.random() * 30) + 70
+      }
+    };
+  };
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && file.type.startsWith('image/')) {
@@ -37,14 +140,16 @@ export const AnalysisDemo = () => {
     setIsAnalyzing(true);
     setResult(null);
 
-    // Simulate AI analysis
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Simulate analysis time
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
-    let mockResult;
+    let analysisResult;
 
-    if (analysisType === "image") {
-      // Image analysis simulation
-      mockResult = {
+    if (analysisType === "text") {
+      analysisResult = analyzeText(content);
+    } else {
+      // Image analysis simulation (keeping existing logic)
+      analysisResult = {
         credibilityScore: Math.floor(Math.random() * 100),
         sources: Math.floor(Math.random() * 3) + 1,
         flags: [],
@@ -57,37 +162,18 @@ export const AnalysisDemo = () => {
         }
       };
 
-      if (mockResult.imageAnalysis.deepfakeDetected) {
-        mockResult.credibilityScore = Math.max(10, mockResult.credibilityScore - 60);
-        mockResult.flags.push("Potential AI-generated content detected");
+      if (analysisResult.imageAnalysis.deepfakeDetected) {
+        analysisResult.credibilityScore = Math.max(10, analysisResult.credibilityScore - 60);
+        analysisResult.flags.push("Potential AI-generated content detected");
       }
 
-      if (mockResult.imageAnalysis.manipulationScore > 20) {
-        mockResult.credibilityScore = Math.max(20, mockResult.credibilityScore - 30);
-        mockResult.flags.push("Digital manipulation detected");
-      }
-    } else {
-      // Text analysis simulation (existing logic)
-      mockResult = {
-        credibilityScore: Math.floor(Math.random() * 100),
-        sources: Math.floor(Math.random() * 5) + 1,
-        flags: [],
-        category: "General News",
-        analysisType: "text"
-      };
-
-      if (content.toLowerCase().includes("breaking") || content.toLowerCase().includes("!")) {
-        mockResult.credibilityScore = Math.max(20, mockResult.credibilityScore - 30);
-        mockResult.flags.push("Sensational language detected");
-      }
-      
-      if (content.toLowerCase().includes("alien") || content.toLowerCase().includes("ufo")) {
-        mockResult.credibilityScore = Math.max(10, mockResult.credibilityScore - 50);
-        mockResult.flags.push("Extraordinary claims without evidence");
+      if (analysisResult.imageAnalysis.manipulationScore > 20) {
+        analysisResult.credibilityScore = Math.max(20, analysisResult.credibilityScore - 30);
+        analysisResult.flags.push("Digital manipulation detected");
       }
     }
 
-    setResult(mockResult);
+    setResult(analysisResult);
     setIsAnalyzing(false);
   };
 
@@ -267,6 +353,32 @@ export const AnalysisDemo = () => {
               </div>
             </div>
 
+            {result.analysisType === "text" && result.textAnalysis && (
+              <div className="space-y-4 border-t pt-4">
+                <h4 className="font-semibold">Text Analysis Details</h4>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div>
+                    <span className="text-sm font-medium">Word Count</span>
+                    <div className="text-lg font-bold text-blue-600">
+                      {result.textAnalysis.wordCount}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium">Sentences</span>
+                    <div className="text-lg font-bold text-blue-600">
+                      {result.textAnalysis.sentenceCount}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium">Readability</span>
+                    <div className="text-lg font-bold text-blue-600">
+                      {result.textAnalysis.readabilityScore}%
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {result.analysisType === "image" && result.imageAnalysis && (
               <div className="space-y-4 border-t pt-4">
                 <h4 className="font-semibold">Image Analysis Details</h4>
@@ -310,7 +422,7 @@ export const AnalysisDemo = () => {
 
             <div className="flex items-center justify-between border-t pt-4">
               <div className="text-xs text-gray-500">
-                Analysis completed in 2.3 seconds • Powered by FakeBuster AI
+                Analysis completed • Powered by FakeBuster AI
               </div>
               <Button variant="outline" size="sm" onClick={clearAnalysis}>
                 New Analysis
